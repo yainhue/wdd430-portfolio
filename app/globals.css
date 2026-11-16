@@ -19,6 +19,12 @@
   }
 }
 
+@layer utilities {
+  .active {
+    @apply text-indigo-200 underline;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
