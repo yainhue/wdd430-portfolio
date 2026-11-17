@@ -1,35 +1,65 @@
-import { NextResponse, NextRequest } from 'next/server';
-import { projects } from '@/app/lib/projects-db';
-import { Project } from '@/app/lib/projects-db';
+// import { NextResponse, NextRequest } from 'next/server';
+// import { projects } from '@/app/lib/projects-db';
+// import { Project } from '@/app/lib/projects-db';
 
-// GET /api/projects/2
+// // GET /api/projects/2
+// export async function GET(
+//   _request: Request,
+//   { params }: { params: { id: string } }
+// ) {
+//   const resolvedParams = await params;
+// const id = Number(resolvedParams.id);
+
+//   if (Number.isNaN(id)) {
+//     return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
+//   }
+
+//   // search in the db for projects with the matching type
+//   // define an empty array of projects
+//   let result: Project[] = [];
+  
+//   projects.forEach(project => {
+//     // for each project in the database of projects...
+//     // if it matches the expected id
+//     if (project.id == id){
+//       // add it to the array of found projects (result)
+//       result.push(project)
+//     }
+//     // else, do nothing (ignore it)
+//   });
+
+//   // return NextResponse.json({ error: 'Not found' }, { status: 404 }) if missing
+
+//   // return result as a JSON
+//   return NextResponse.json({ result });
+// }
+
+import { NextResponse } from 'next/server';
+import { getProjectById } from '@/app/lib/projects-db';
+
 export async function GET(
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const resolvedParams = await params;
-const id = Number(resolvedParams.id);
+  const { id } = await params;
 
-  if (Number.isNaN(id)) {
-    return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
+  const projectId = Number(id);
+
+  if (Number.isNaN(projectId)) {
+    return NextResponse.json(
+      { error: 'Invalid id' },
+      { status: 400 }
+    );
   }
 
-  // search in the db for projects with the matching type
-  // define an empty array of projects
-  let result: Project[] = [];
-  
-  projects.forEach(project => {
-    // for each project in the database of projects...
-    // if it matches the expected id
-    if (project.id == id){
-      // add it to the array of found projects (result)
-      result.push(project)
-    }
-    // else, do nothing (ignore it)
-  });
+  const project = await getProjectById(projectId);
 
-  // return NextResponse.json({ error: 'Not found' }, { status: 404 }) if missing
+  if (!project) {
+    return NextResponse.json(
+      { error: 'Not found' },
+      { status: 404 }
+    );
+  }
 
-  // return result as a JSON
-  return NextResponse.json({ result });
+  return NextResponse.json(project);
 }
